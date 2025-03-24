@@ -7,7 +7,6 @@ from pydantic import EmailStr
 # Settings Class
 class Settings(BaseSettings):
     
-    rabbitmq_url: str
     rabbitmq_url: str = "amqp://guest:guest@localhost:5672/"
 
     smtp_port: int = 587
@@ -17,7 +16,12 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_file=".env",
-        extra="allow"  # 👈 THIS allows extra keys in the .env
+        env_prefix="",          
+        case_sensitive=False,   
+        extra="allow"
     )
 
+
 settings = Settings()
+
+print("✅ Loaded RabbitMQ URL:", settings.rabbitmq_url)
