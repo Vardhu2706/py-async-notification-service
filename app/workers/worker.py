@@ -4,6 +4,7 @@
 import asyncio
 import json
 import aio_pika
+import uuid
 
 from app.config.settings import settings
 print("🐇 Connecting to RabbitMQ at:", settings.rabbitmq_url)
@@ -12,6 +13,7 @@ from app.services.email_service import send_email
 from app.services.sms_service import send_sms
 from app.services.push_service import send_push
 from app.services.logger import log_notification
+from app.utils.retry import retry
 
 QUEUE_NAME = "notifications"
 
@@ -24,6 +26,7 @@ async def handle_message(message: aio_pika.IncomingMessage):
         print("📬 Received a message from queue")  # <--- Add this
         try:
             payload = json.loads(message.body)
+            notif_id = payload.get("id", str(uuid.uuid4()))
 
             notif_type = payload.get("type", "unknown")
             to = payload.get("to", "")
@@ -32,22 +35,26 @@ async def handle_message(message: aio_pika.IncomingMessage):
 
             # Route based on notification type
             if notif_type == "email":
-                await send_email(to, subject, body)
+                await retry(send_email, to, subject, body)
             elif notif_type == "sms":
-                await send_sms(to, body)
+                await retry(send_sms, to, body)
             elif notif_type == "push":
-                await send_push(to, body)
+                await retry(send_push, to, body)
             else:
                 print(f"Unknown notification type: {notif_type}")
 
             await log_notification(
-                notif_type, to, subject, body,
+                notif_id, notif_type, to, subject, body,
                 status="success"
             )   
 
         except Exception as e:
             await log_notification(
-                notif_type, to, subject, body,
+                notif_id, 
+                notif_type, 
+                to, 
+                subject, 
+                body,
                 status="failed",
                 error=str(e)
             )

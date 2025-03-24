@@ -6,6 +6,7 @@ from app.models.log import NotificationLog
 from app.main import engine
 
 async def log_notification(
+    id: str,
     notif_type: str,
     to: str,
     subject: str,
@@ -14,6 +15,7 @@ async def log_notification(
     error: str = None
 ):
     log_entry = NotificationLog(
+        id=id,
         type=notif_type,
         to=to,
         subject=subject,

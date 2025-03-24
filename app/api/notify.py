@@ -25,7 +25,7 @@ async def send_notifications(payload: NotificationRequest):
             raise HTTPException(status_code=400, detail="Invalid email address")
         
         # Publish the validated notitication to the RabbitMQ queue
-        await publish_message(payload.dict())
+        await publish_message(payload.model_dump())
 
         # Return a success response
         return {

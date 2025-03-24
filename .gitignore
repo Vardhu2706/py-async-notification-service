@@ -42,3 +42,7 @@ htmlcov/
 
 # Kubernetes
 *.yaml~
+*.db
+
+# Database
+notifications.db
