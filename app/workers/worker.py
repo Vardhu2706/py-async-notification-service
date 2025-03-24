@@ -6,6 +6,8 @@ import json
 import aio_pika
 
 from app.config.settings import settings
+print("🐇 Connecting to RabbitMQ at:", settings.rabbitmq_url)
+
 from app.services.email_service import send_email
 from app.services.sms_service import send_sms
 from app.services.push_service import send_push
