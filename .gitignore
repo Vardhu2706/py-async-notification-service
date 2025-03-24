@@ -46,3 +46,6 @@ htmlcov/
 
 # Database
 notifications.db
+
+# But DO NOT ignore the example
+!.env.example
