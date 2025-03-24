@@ -2,7 +2,7 @@
 name = "async-notification-service"
 version = "0.1.0"
 description = "Asynchronous notification service using FastAPI, RabbitMQ, and aio-pika"
-authors = ["Your Name <you@example.com>"]
+authors = ["Vardhaman Ayyagar ayyagari.vardhu@gmail.com"]
 readme = "README.md"
 packages = [{ include = "app" }]
 

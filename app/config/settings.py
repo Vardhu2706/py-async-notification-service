@@ -1,6 +1,9 @@
 # Config.py
 
 # Imports
+import os
+os.environ.pop("RABBITMQ_URL", None)
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import EmailStr
 

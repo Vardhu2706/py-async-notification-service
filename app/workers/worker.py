@@ -20,6 +20,7 @@ async def handle_message(message: aio_pika.IncomingMessage):
     Determines notification type and routes accordingly.
     """
     async with message.process():   # Marks message as acknowledged once block finishes.
+        print("📬 Received a message from queue")  # <--- Add this
         try:
             payload = json.loads(message.body)
 
@@ -50,7 +51,8 @@ async def main():
     channel = await connection.channel()
     queue = await channel.declare_queue(QUEUE_NAME, durable=True)
 
-    print(f"Worker started, listening to queue: {QUEUE_NAME}")
+    print(f"Worker started. Listening to queue: {QUEUE_NAME}")
+    await queue.consume(handle_message)
 
     # Keep the worker running
     await asyncio.Future()
