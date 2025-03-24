@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     
     rabbitmq_url: str = "amqp://guest:guest@localhost:5672/"
 
+    smtp_host: str = "sandbox.smtp.mailtrap.io"
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_pass: str = ""
