@@ -11,6 +11,7 @@ print("🐇 Connecting to RabbitMQ at:", settings.rabbitmq_url)
 from app.services.email_service import send_email
 from app.services.sms_service import send_sms
 from app.services.push_service import send_push
+from app.services.logger import log_notification
 
 QUEUE_NAME = "notifications"
 
@@ -24,10 +25,10 @@ async def handle_message(message: aio_pika.IncomingMessage):
         try:
             payload = json.loads(message.body)
 
-            notif_type = payload.get("type")
-            to = payload.get("to")
-            subject = payload.get("subject")
-            body = payload.get("body")
+            notif_type = payload.get("type", "unknown")
+            to = payload.get("to", "")
+            subject = payload.get("subject", "")
+            body = payload.get("body", "")
 
             # Route based on notification type
             if notif_type == "email":
@@ -39,8 +40,19 @@ async def handle_message(message: aio_pika.IncomingMessage):
             else:
                 print(f"Unknown notification type: {notif_type}")
 
+            await log_notification(
+                notif_type, to, subject, body,
+                status="success"
+            )   
+
         except Exception as e:
+            await log_notification(
+                notif_type, to, subject, body,
+                status="failed",
+                error=str(e)
+            )
             print(f"Error processing message: {e}")
+
 
 
 async def main():
