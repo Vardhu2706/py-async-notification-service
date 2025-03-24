@@ -26,11 +26,13 @@ async def handle_message(message: aio_pika.IncomingMessage):
     Determines notification type and routes accordingly.
     """
     async with message.process():   # Marks message as acknowledged once block finishes.
-        print("📬 Received a message from queue")  # <--- Add this
+
         try:
             payload = json.loads(message.body)
             notif_id = payload.get("id", str(uuid.uuid4()))
 
+            print(f"[{notif_id}] 📬 Received a message from queue")
+            
             notif_type = payload.get("type", "unknown")
             to = payload.get("to", "")
             subject = payload.get("subject", "")
@@ -38,11 +40,11 @@ async def handle_message(message: aio_pika.IncomingMessage):
 
             # Route based on notification type
             if notif_type == "email":
-                await retry(send_email, to, subject, body)
+                await retry(send_email, to, subject, body, notif_id=notif_id)
             elif notif_type == "sms":
-                await retry(send_sms, to, body)
+                await retry(send_sms, to, body, notif_id=notif_id)
             elif notif_type == "push":
-                await retry(send_push, to, body)
+                await retry(send_push, to, body, notif_id=notif_id)
             else:
                 print(f"Unknown notification type: {notif_type}")
 
@@ -62,7 +64,7 @@ async def handle_message(message: aio_pika.IncomingMessage):
                 error=str(e)
             )
             await send_to_dlq(payload)
-            print("📦 Sent failed message to DLQ.")
+            print(f"[{notif_id}] 📦 Sent failed message to DLQ")
 
 async def main():
     """

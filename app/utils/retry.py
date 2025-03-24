@@ -3,13 +3,16 @@
 # Imports 
 import asyncio
 
-async def retry(fn, *args, retries=3, delay=2, **kwargs):
+async def retry(func, *args, retries=3, delay=1, notif_id=None):
+    """
+    Retry a notification multiple times with delay in case of failure.
+    Logs each retry attempt. Supports optional notif_id for traceable logs.
+    """
     for attempt in range(retries):
         try:
-            return await fn(*args, **kwargs)
+            return await func(*args)
         except Exception as e:
-            print(f"❌ Retry {attempt+1}/{retries} failed: {e}")
-            if attempt < retries - 1:
-                await asyncio.sleep(delay)
-            else:
-                raise
+            prefix = f"[{notif_id}] " if notif_id else ""
+            print(f"{prefix}❌ Retry {attempt}/{retries} failed: {e}")
+            await asyncio.sleep(delay)
+    raise Exception("All retries failed")
